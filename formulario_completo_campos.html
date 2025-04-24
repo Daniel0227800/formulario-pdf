@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>PDF con Campos Extendidos</title>
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+</head>
+<body>
+  <h2>📑 Llenar PDF con muchos campos</h2>
+  <button onclick="llenarPDF()">Generar PDF</button>
+
+  <script>
+    async function llenarPDF() {
+      try {
+        const existingPdfBytes = await fetch('formulario_editable.pdf').then(res => res.arrayBuffer());
+        const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+        const form = pdfDoc.getForm();
+
+        // Campos verificados
+        form.getTextField("CODIGO").setText("12345");
+        form.getDropdown("DÍA").select("15");
+        form.getTextField("MES").setText("Abril");
+        form.getCheckBox("CHECK TRAMITE").check();
+        form.getCheckBox("CHECK COTIZANTE").check();
+
+        // Campos extendidos (si existen)
+        const campos = {
+          "TIPO DE AFILIACIÓN": "Cotizante",
+          "TIPO DE REGIMEN": "Contributivo",
+          "TIPO AFILIADO": "Cabeza de familia",
+          "PRIMER APELLIDO": "GOMEZ",
+          "SEGUNDO APELLIDO": "PEREZ",
+          "PRIMER NOMBRE": "LUIS",
+          "SEGUNDO NOMBRE": "ALBERTO",
+          "SEXO": "M",
+          "SEXO IDENTIFICACION": "M",
+          "NACIONALIDAD": "COLOMBIANA",
+          "PAIS": "COLOMBIA",
+          "CIUDAD/MUNICIPIO": "BOGOTÁ",
+          "DIRECCION": "CALLE 123 #45-67",
+          "LOCALIDAD/COMUNA": "KENNEDY",
+          "ZONA": "URBANA",
+          "TELÉFONO FIJO": "6011234567",
+          "TELÉFONO CELULAR": "3014567890",
+          "CORREO ELECTRÓNICO": "correo@ejemplo.com",
+          "ENCUESTA SISBEN": "SI",
+          "CLASIFICACIÓN SISBEN": "B1",
+          "GRUPO POBLACIONAL": "NINGUNO",
+          "CATEGORÍA DISCAPACIDAD": "NINGUNA",
+          "AFP": "PROTECCIÓN",
+          "ARL": "SURA",
+          "IBC": "1200000",
+          "TARIFA CONTRIBUCIÓN SOLIDARIA": "0.02"
+        };
+
+        for (const [campo, valor] of Object.entries(campos)) {
+          try {
+            form.getTextField(campo).setText(valor);
+          } catch (e) {
+            console.warn("Campo no encontrado (omitido):", campo);
+          }
+        }
+
+        const pdfBytes = await pdfDoc.save();
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'formulario_completo_lleno.pdf';
+        link.click();
+      } catch (error) {
+        console.error("❌ Error al generar el PDF:", error);
+      }
+    }
+  </script>
+</body>
+</html>
