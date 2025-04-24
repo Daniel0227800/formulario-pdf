@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generar PDF con Coordenadas</title>
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+</head>
+<body>
+  <h1>Generar PDF (con coordenadas)</h1>
+  <button onclick="generarPDF()">📄 Generar PDF</button>
+
+  <script>
+    async function generarPDF() {
+      try {
+        const existingPdfBytes = await fetch('formulario_editable.pdf').then(res => res.arrayBuffer());
+        const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+        const pages = pdfDoc.getPages();
+        const page = pages[0];
+        const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+
+        // Simulación de campos con coordenadas (estos valores deben ser ajustados manualmente)
+        const datos = {
+          primer_apellido: "PEREZ",
+          segundo_apellido: "PEREZ",
+          primer_nombre: "PEDRO",
+          segundo_nombre: "JOSE",
+          tipo_doc: "CC",
+          num_doc: "1001971041",
+          sexo_biologico: "M",
+          sexo_identidad: "M",
+          nacionalidad: "COLOMBIANA",
+          lugar_nacimiento: "BOGOTÁ",
+          pais: "COLOMBIA",
+          departamento: "CUNDINAMARCA",
+          municipio: "BOGOTÁ",
+          fecha_nacimiento: "1990-01-01"
+        };
+
+        // Dibujar texto en coordenadas (X, Y) ficticias (deben ajustarse)
+        page.drawText(datos.primer_apellido, { x: 100, y: 720, size: 12, font });
+        page.drawText(datos.segundo_apellido, { x: 200, y: 720, size: 12, font });
+        page.drawText(datos.primer_nombre, { x: 100, y: 700, size: 12, font });
+        page.drawText(datos.segundo_nombre, { x: 200, y: 700, size: 12, font });
+        page.drawText(datos.tipo_doc, { x: 100, y: 680, size: 12, font });
+        page.drawText(datos.num_doc, { x: 200, y: 680, size: 12, font });
+        page.drawText(datos.sexo_biologico, { x: 100, y: 660, size: 12, font });
+        page.drawText(datos.sexo_identidad, { x: 200, y: 660, size: 12, font });
+        page.drawText(datos.nacionalidad, { x: 100, y: 640, size: 12, font });
+        page.drawText(datos.lugar_nacimiento, { x: 100, y: 620, size: 12, font });
+        page.drawText(datos.pais, { x: 100, y: 600, size: 12, font });
+        page.drawText(datos.departamento, { x: 200, y: 600, size: 12, font });
+        page.drawText(datos.municipio, { x: 300, y: 600, size: 12, font });
+        page.drawText(datos.fecha_nacimiento, { x: 100, y: 580, size: 12, font });
+
+        const pdfBytes = await pdfDoc.save();
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'formulario_con_coordenadas.pdf';
+        link.click();
+      } catch (err) {
+        console.error("❌ Error al generar el PDF:", err);
+      }
+    }
+  </script>
+</body>
+</html>
